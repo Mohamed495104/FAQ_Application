@@ -1,0 +1,75 @@
+﻿@model IEnumerable<FAQ>
+
+@{
+    ViewData["Title"] = "FAQ List";
+    var topics = ViewBag.Topics as List<Topic>;
+    var categories = ViewBag.Categories as List<Category>;
+    var selectedTopic = ViewBag.SelectedTopic as string;
+    var selectedCategory = ViewBag.SelectedCategory as string;
+}
+
+<div class="row">
+    <!-- Left sidebar with categories -->
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="/@(selectedTopic == "all" ? "" : $"topic/{selectedTopic}/")"
+               class="list-group-item list-group-item-action @(selectedCategory == "all" ? "active" : "")">
+                All Categories
+            </a>
+            @if (categories != null)
+            {
+                @foreach (var category in categories)
+                {
+                    var catUrl = selectedTopic == "all"
+                    ? $"/category/{category.CategoryId}/"
+                    : $"/topic/{selectedTopic}/category/{category.CategoryId}/";
+
+                    <a href="@catUrl"
+                       class="list-group-item list-group-item-action @(selectedCategory == category.CategoryId ? "active" : "")">
+                        @category.Name
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="col-md-9">
+        <h2>Frequently Asked Questions</h2>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="accordion" id="faqAccordion">
+                @{
+                    int index = 0;
+                }
+                @foreach (var faq in Model)
+                {
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading@(index)">
+                            <button class="accordion-button collapsed" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#collapse@(index)"
+                                    aria-expanded="false" aria-controls="collapse@(index)">
+                                @faq.Question
+                            </button>
+                        </h2>
+                        <div id="collapse@(index)" class="accordion-collapse collapse"
+                             aria-labelledby="heading@(index)" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <strong>@faq.Topic?.Name - @faq.Category?.Name</strong>
+                                <p class="mt-2">@faq.Answer</p>
+                            </div>
+                        </div>
+                    </div>
+                    index++;
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                No FAQs found for the selected filters.
+            </div>
+        }
+    </div>
+</div>
